@@ -1,0 +1,29 @@
+name: Pipeline
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+permissions:
+  contents: read
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Docker Build
+        uses: ./.boing/workflows/docker/build
+
+      - name: Vendor
+        uses: ./.boing/workflows/php/build
+
+      - name: Linter
+        uses: ./.boing/workflows/php/lint
