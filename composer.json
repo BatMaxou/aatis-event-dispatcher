@@ -10,10 +10,16 @@
     ],
     "autoload": {
         "psr-4": {
-            "Aatis\\ErrorHandler\\": "src/"
+            "Aatis\\EventDispatcher\\": "src/"
         }
     },
     "require": {
-        "php": "^8.2"
+        "php": "^8.2",
+        "psr/event-dispatcher": "^1.0",
+        "aatis/dependency-injection": "^1.4"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.49",
+        "phpstan/phpstan": "^1.10"
     }
 }
