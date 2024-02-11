@@ -72,11 +72,13 @@ class ListenerProvider implements ListenerProviderInterface
      */
     public function getListenersForEvent(object $event): iterable
     {
+        $returnedListeners = [];
+
         if ($event instanceof Event) {
             foreach ($this->subscribers as $subscriber) {
-                foreach ($subscriber->getSubscribedEvents() as $eventClass => $method) {
+                foreach ($subscriber->getSubscribedEvents() as $eventClass => $infos) {
                     if ($event instanceof $eventClass) {
-                        yield $subscriber->$method(...);
+                        $returnedListeners = array_merge($this->getListenerInfosFromSubscriberInfos($subscriber, $infos), $returnedListeners);
                     }
                 }
             }
@@ -84,12 +86,71 @@ class ListenerProvider implements ListenerProviderInterface
             foreach ($this->listeners as $eventClass => $listeners) {
                 if ($event instanceof $eventClass) {
                     foreach ($listeners as $listener) {
-                        yield $listener(...);
+                        $returnedListeners = array_merge([['method' => $listener(...), 'priority' => 0]], $returnedListeners);
                     }
                 }
+            }
+
+            $sortedListeners = $this->sortListeners($returnedListeners);
+
+            foreach ($sortedListeners as $listener) {
+                yield $listener['method'];
             }
         } else {
             throw new InvalidArgumentException('Event must be an instance of '.Event::class);
         }
+    }
+
+    /**
+     * @return array<array{
+     *  method: callable,
+     *  priority: int
+     * }>
+     */
+    private function getListenerInfosFromSubscriberInfos(EventSubscriberInterface $subscriber, mixed $infos): array
+    {
+        $listenersInfos = [];
+
+        if (!is_array($infos)) {
+            $listenersInfos = [
+                [
+                    'method' => $subscriber->$infos(...),
+                    'priority' => 0,
+                ],
+            ];
+        } elseif ($infos[1] && is_int($infos[1])) {
+            $listenersInfos = [
+                [
+                    'method' => $subscriber->{$infos[0]}(...),
+                    'priority' => $infos[1],
+                ],
+            ];
+        } else {
+            foreach ($infos as $info) {
+                $listenersInfos = array_merge($this->getListenerInfosFromSubscriberInfos($subscriber, $info), $listenersInfos);
+            }
+        }
+
+        return $listenersInfos;
+    }
+
+    /**
+     * @param array<array{
+     *  method: callable,
+     *  priority: int
+     * }> $listeners
+     *
+     * @return array<array{
+     *  method: callable,
+     *  priority: int
+     * }>
+     */
+    private function sortListeners(array $listeners): array
+    {
+        usort($listeners, function ($a, $b) {
+            return $b['priority'] <=> $a['priority'];
+        });
+
+        return $listeners;
     }
 }
