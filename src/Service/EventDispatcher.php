@@ -2,9 +2,11 @@
 
 namespace Aatis\EventDispatcher\Service;
 
-use Aatis\EventDispatcher\Entity\Event;
+use Aatis\EventDispatcher\Event\Event;
+use Aatis\EventDispatcher\Event\StoppableEvent;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
+use Aatis\EventDispatcher\Exception\EventDispatcher\InvalidArgumentException;
 
 class EventDispatcher implements EventDispatcherInterface
 {
@@ -12,8 +14,20 @@ class EventDispatcher implements EventDispatcherInterface
     {
     }
 
-    public function dispatch(Event $event): Event
+    public function dispatch(object $event): Event
     {
+        if ($event instanceof Event) {
+            foreach ($this->listenerProvider->getListenersForEvent($event) as $listener) {
+                if ($event instanceof StoppableEvent && $event->isPropagationStopped()) {
+                    continue;
+                }
+
+                $listener($event);
+            }
+        } else {
+            throw new InvalidArgumentException('Event must be an instance of '.Event::class);
+        }
+
         return $event;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Aatis\EventDispatcher\Entity;
+namespace Aatis\EventDispatcher\Event;
 
 use Aatis\EventDispatcher\Interface\StoppableEventInterface;
 
