@@ -5,6 +5,7 @@ namespace Aatis\EventDispatcher\Service;
 use Aatis\EventDispatcher\Event\Event;
 use Psr\EventDispatcher\ListenerProviderInterface;
 use Aatis\DependencyInjection\Interface\ContainerInterface;
+use Aatis\EventDispatcher\Attribute\EventListener;
 use Aatis\EventDispatcher\Interface\EventSubscriberInterface;
 use Aatis\EventDispatcher\Exception\ListenerProvider\InvalidArgumentException;
 use Aatis\EventDispatcher\Exception\ListenerProvider\InvalidListenerArgumentException;
@@ -14,7 +15,12 @@ class ListenerProvider implements ListenerProviderInterface
     /** @var EventSubscriberInterface[] */
     private array $subscribers = [];
 
-    /** @var array<class-string, array<object&callable>> */
+    /**
+     * @var array<class-string, array<array{
+     *  listener: object&callable,
+     *  priority: int
+     * }>>
+     */
     private array $listeners = [];
 
     public function __construct(private readonly ContainerInterface $container)
@@ -50,6 +56,18 @@ class ListenerProvider implements ListenerProviderInterface
     private function addListener(object $listener): void
     {
         $reflexion = new \ReflectionClass($listener);
+
+        $priority = 0;
+        $attributes = $reflexion->getAttributes(EventListener::class);
+
+        foreach ($attributes as $attribute) {
+            $arguments = $attribute->getArguments();
+
+            if (isset($arguments['priority'])) {
+                $priority = $arguments['priority'];
+            }
+        }
+
         $invokeMethod = $reflexion->getMethod('__invoke');
         $parameters = $invokeMethod->getParameters();
 
@@ -63,7 +81,10 @@ class ListenerProvider implements ListenerProviderInterface
         $eventType = $parameters[0]->getType();
 
         if ($eventType && is_a($eventType->getName(), Event::class, true)) {
-            $this->listeners[$eventType->getName()][] = $listener;
+            $this->listeners[$eventType->getName()][] = [
+                'listener' => $listener,
+                'priority' => $priority,
+            ];
         }
     }
 
@@ -83,10 +104,10 @@ class ListenerProvider implements ListenerProviderInterface
                 }
             }
 
-            foreach ($this->listeners as $eventClass => $listeners) {
+            foreach ($this->listeners as $eventClass => $listenersInfos) {
                 if ($event instanceof $eventClass) {
-                    foreach ($listeners as $listener) {
-                        $returnedListeners = array_merge([['method' => $listener(...), 'priority' => 0]], $returnedListeners);
+                    foreach ($listenersInfos as $listenerInfos) {
+                        $returnedListeners = array_merge([['method' => $listenerInfos['listener'](...), 'priority' => $listenerInfos['priority']]], $returnedListeners);
                     }
                 }
             }
