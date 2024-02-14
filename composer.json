@@ -14,8 +14,8 @@
         }
     },
     "require": {
-        "php": "^8.2",
+        "php": ">=8.2",
         "psr/event-dispatcher": "^1.0",
-        "aatis/dependency-injection": "^1.4"
+        "aatis/dependency-injection": "^1.5"
     }
 }

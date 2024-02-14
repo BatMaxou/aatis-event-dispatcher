@@ -5,11 +5,11 @@ namespace Aatis\EventDispatcher\Interface;
 interface EventSubscriberInterface
 {
     /**
-     * @return array<class-string, callable|array{
-     *  0: callable,
+     * @return array<class-string, string|array{
+     *  0: string,
      *  1?: int
-     * }|array<callable|array{
-     *  0: callable,
+     * }|array<string|array{
+     *  0: string,
      *  1?: int
      * }>>
      */
