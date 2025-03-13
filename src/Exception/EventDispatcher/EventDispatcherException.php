@@ -1,6 +1,6 @@
 <?php
 
-namespace Aatis\EventDispatcher\Interface\Exception;
+namespace Aatis\EventDispatcher\Exception\EventDispatcher;
 
 class EventDispatcherException extends \Exception
 {

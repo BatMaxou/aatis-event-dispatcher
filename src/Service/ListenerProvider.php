@@ -2,13 +2,13 @@
 
 namespace Aatis\EventDispatcher\Service;
 
-use Aatis\EventDispatcher\Event\Event;
-use Psr\EventDispatcher\ListenerProviderInterface;
 use Aatis\DependencyInjection\Interface\ContainerInterface;
 use Aatis\EventDispatcher\Attribute\EventListener;
-use Aatis\EventDispatcher\Interface\EventSubscriberInterface;
+use Aatis\EventDispatcher\Event\Event;
 use Aatis\EventDispatcher\Exception\ListenerProvider\InvalidArgumentException;
 use Aatis\EventDispatcher\Exception\ListenerProvider\InvalidListenerArgumentException;
+use Aatis\EventDispatcher\Interface\EventSubscriberInterface;
+use Psr\EventDispatcher\ListenerProviderInterface;
 
 class ListenerProvider implements ListenerProviderInterface
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Aatis\EventDispatcher\Interface\Exception;
+namespace Aatis\EventDispatcher\Exception\ListenerProvider;
 
 class ListenerProviderException extends \Exception
 {
