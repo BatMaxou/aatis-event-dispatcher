@@ -2,12 +2,13 @@
 
 namespace Aatis\EventDispatcher\Service;
 
-use Aatis\DependencyInjection\Interface\ContainerInterface;
+use Aatis\DependencyInjection\Service\ServiceTagBuilder;
 use Aatis\EventDispatcher\Attribute\EventListener;
 use Aatis\EventDispatcher\Event\Event;
 use Aatis\EventDispatcher\Exception\ListenerProvider\InvalidArgumentException;
 use Aatis\EventDispatcher\Exception\ListenerProvider\InvalidListenerArgumentException;
 use Aatis\EventDispatcher\Interface\EventSubscriberInterface;
+use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
 
 class ListenerProvider implements ListenerProviderInterface
@@ -23,16 +24,19 @@ class ListenerProvider implements ListenerProviderInterface
      */
     private array $listeners = [];
 
-    public function __construct(private readonly ContainerInterface $container)
-    {
+    public function __construct(
+        private readonly ContainerInterface $container,
+        private readonly ServiceTagBuilder $serviceTagBuilder,
+    ) {
         $this->addSubscribers();
         $this->addListeners();
     }
 
     private function addSubscribers(): void
     {
-        /** @var EventSubscriberInterface $subscriber */
-        foreach ($this->container->getByInterface(EventSubscriberInterface::class) as $subscriber) {
+        /** @var EventSubscriberInterface[] $subscribers */
+        $subscribers = $this->container->get($this->serviceTagBuilder->buildFromInterface(EventSubscriberInterface::class));
+        foreach ($subscribers as $subscriber) {
             $this->addSubscriber($subscriber);
         }
     }
@@ -44,8 +48,9 @@ class ListenerProvider implements ListenerProviderInterface
 
     private function addListeners(): void
     {
-        /** @var object&callable $listener */
-        foreach ($this->container->getByTag('event-listener') as $listener) {
+        /** @var (object&callable)[] $listeners */
+        $listeners = $this->container->get($this->serviceTagBuilder->buildFromName('event-listener'));
+        foreach ($listeners as $listener) {
             $this->addListener($listener);
         }
     }
