@@ -3,7 +3,8 @@
 ## Advertisement
 
 This package is a part of `Aatis` and can't be used without the following packages :
-- `aatis/dependency-injection` (https://github.com/BatMaxou/aatis-DI)
+- `aatis/dependency-injection` (https://github.com/BatMaxou/aatis-dependency-injection)
+- `aatis/tag` (https://github.com/BatMaxou/aatis-tag)
 
 ## Installation
 
