@@ -4,9 +4,9 @@ namespace Aatis\EventDispatcher\Service;
 
 use Aatis\EventDispatcher\Event\Event;
 use Aatis\EventDispatcher\Event\StoppableEvent;
+use Aatis\EventDispatcher\Exception\EventDispatcher\InvalidArgumentException;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
-use Aatis\EventDispatcher\Exception\EventDispatcher\InvalidArgumentException;
 
 class EventDispatcher implements EventDispatcherInterface
 {
